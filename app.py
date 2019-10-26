@@ -37,8 +37,10 @@ def callback():
 
     # get request body as text
     body = request.get_data(as_text=True)
-    # print("body:",body)
+
     app.logger.info("Request body: " + body)
+    print("Request body: " + body)
+    print("Request signature: " + signature)
 
     try:
         handler.handle(body, signature)
@@ -52,6 +54,8 @@ def callback():
 def handle_message(event):
     print("event.reply_token:", event.reply_token)
     print("event.message.text:", event.message.text)
+    print("event type = "+type(event))
+    print(event)
     if event.message.text.lower() == "test":
         content = 'test666'
         line_bot_api.reply_message(
