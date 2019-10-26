@@ -25,7 +25,7 @@ line_bot_api = LineBotApi(channelAccessToken)
 handler = WebhookHandler(channelSecret)
 
 
-@app.route("/index", methods=['GET'])
+@app.route("/home", methods=['GET'])
 def home():
     print(channelAccessToken)
     print(channelSecret)
@@ -34,7 +34,7 @@ def home():
 
 
 @app.route("/sendMsg", methods=['GET'])
-def home():
+def sendMsg():
     # get request body as text
     body = request.get_data(as_text=True)
     print(body)
