@@ -54,7 +54,7 @@ def callback():
 def handle_message(event):
     print("event.reply_token:", event.reply_token)
     print("event.message.text:", event.message.text)
-    print("event type = "+type(event))
+    print("event type = "+str(type(event)))
     print(event)
     if event.message.text.lower() == "test":
         content = 'test666'
