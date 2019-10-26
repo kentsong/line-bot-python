@@ -27,7 +27,7 @@ def home():
     print(channelAccessToken)
     print(channelSecret)
 
-    return 'helloworld!'
+    return 'helloworld! linebot'
 
 
 @app.route("/callback", methods=['POST'])
