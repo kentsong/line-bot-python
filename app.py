@@ -16,8 +16,11 @@ from linebot.exceptions import (
 from linebot.models import *
 
 app = Flask(__name__)
+
+## 從 Heroku Config Vars 讀取數據
 channelAccessToken = os.environ.get('Channel_Access_Token', '')
 channelSecret = os.environ.get('Channel_Secret', '')
+kentUserId = os.environ.get('Kent_User_Id', '')
 line_bot_api = LineBotApi(channelAccessToken)
 handler = WebhookHandler(channelSecret)
 
@@ -28,6 +31,18 @@ def home():
     print(channelSecret)
 
     return 'helloworld! linebot'
+
+
+@app.route("/sendMsg", methods=['GET'])
+def home():
+    # get request body as text
+    body = request.get_data(as_text=True)
+    print(body)
+    print("kentUserId=" + kentUserId)
+    # 推訊息
+    line_bot_api.push_message(kentUserId,
+                              TextSendMessage(text='Hello World!'))
+    return 'ok'
 
 
 @app.route("/callback", methods=['POST'])
@@ -54,7 +69,7 @@ def callback():
 def handle_message(event):
     print("event.reply_token:", event.reply_token)
     print("event.message.text:", event.message.text)
-    print("event type = "+str(type(event)))
+    print("event type = " + str(type(event)))
     print(event)
     if event.message.text.lower() == "test":
         content = 'test666'
