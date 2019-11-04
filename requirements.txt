@@ -3,3 +3,5 @@ gunicorn==19.9.0
 beautifulsoup4==4.6.3
 line-bot-sdk==1.8.0
 imgurpython==1.1.7
+pymongo==3.9.0
+pandas==0.25.2
