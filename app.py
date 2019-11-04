@@ -7,6 +7,10 @@ from flask import Flask, request, abort
 from imgurpython import ImgurClient
 import os
 
+# 本地py引入
+import storage
+import stock_parse
+
 from linebot import (
     LineBotApi, WebhookHandler
 )
@@ -45,6 +49,20 @@ def sendMsg():
     return 'ok'
 
 
+@app.route("/controller", methods=['GET'])
+def receiceCommend():
+    # args取get方式参数
+    ctype = request.args.get('type')
+    code = request.args.get('code')
+
+    resultMsg = 'request ctype=' + ctype + ', code=' + code
+    print(resultMsg)
+    if ctype == 'parseHistory':
+        msg = stock_parse.parseStockHistorty(code)
+        return resultMsg + ", 处理结果=" + msg
+    return 'type not mapping...'
+
+
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
@@ -71,11 +89,21 @@ def handle_message(event):
     print("event.message.text:", event.message.text)
     print("event type = " + str(type(event)))
     print(event)
-    if event.message.text.lower() == "test":
+
+    reqMsg = event.message.text.lower()
+    if reqMsg == "test":
         content = 'test666'
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=content))
+    elif reqMsg.find("殖利率法") != -1:
+        x = reqMsg.split(" ")
+        code = x[1]
+        print(code)
+        stock_parse.parseStockHistorty(code)
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=code))
     else:
         line_bot_api.reply_message(
             event.reply_token,
