@@ -104,6 +104,14 @@ def handle_message(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=code))
+    elif reqMsg.find("年度股價") != -1:
+        x = reqMsg.split(" ")
+        code = x[1]
+        print(code)
+        msg = stock_parse.parseCurrentYearPrice(code)
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=msg))
     else:
         line_bot_api.reply_message(
             event.reply_token,
