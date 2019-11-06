@@ -6,6 +6,9 @@ from bs4 import BeautifulSoup
 from flask import Flask, request, abort
 from imgurpython import ImgurClient
 import os
+# from flask_apscheduler import APScheduler  # 引入APScheduler
+
+import time
 
 # 本地py引入
 import storage
@@ -19,6 +22,32 @@ from linebot.exceptions import (
 )
 from linebot.models import *
 
+
+class Config(object):
+    JOBS = [
+        # {
+        #     'id': 'job1',
+        #     'func': 'app:test_data',
+        #     'args': '',
+        #     'trigger': {
+        #         'type': 'cron',
+        #         'day_of_week': "mon-fri",
+        #         'hour': '0-23',
+        #         'minute': '0-59',
+        #         'second': '*/30'
+        #     }
+        #
+        # },
+        {
+            'id': 'job_announce',
+            'func': 'app:test_data',
+            'args': '',
+            'trigger': 'interval',
+            'seconds': 5
+        }
+    ]
+    SCHEDULER_API_ENABLED = True
+
 app = Flask(__name__)
 
 ## 從 Heroku Config Vars 讀取數據
@@ -28,6 +57,9 @@ kentUserId = os.environ.get('Kent_User_Id', '')
 line_bot_api = LineBotApi(channelAccessToken)
 handler = WebhookHandler(channelSecret)
 
+
+def test_data():
+    print("I am working:%s"+time.asctime())
 
 @app.route("/home", methods=['GET'])
 def home():
@@ -124,5 +156,18 @@ def handle_message(event):
         return 0
 
 
+def job1():
+    print ("%s: 执行任务1"  % time.asctime())
+
+def job2():
+    print ("%s: 执行任务2"  % time.asctime())
+
+
+
+
 if __name__ == '__main__':
+    # scheduler = APScheduler();
+    # app.config.from_object(Config())
+    # scheduler.init_app(app)
+    # scheduler.start()
     app.run()
