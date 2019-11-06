@@ -164,3 +164,49 @@ def parseCurrentYearPrice(code):
     msg = stockName + '(' + code + ')'', 年度：' + curDf[0] + ', 最高：' + str(curDf[1]) + ', 最低：' + str(
         curDf[2]) + ', 年均：' + str(curDf[3])
     return msg
+
+
+
+
+def parseStockqOrgUrl(url):
+    r = requests.get(url)
+
+    if r.status_code != 200:
+        print('查詢失敗')
+        return '查詢失敗'
+    
+    soup = BeautifulSoup(r.content, "html.parser")
+    table = soup.find_all('table', class_='indexpagetable')[3]
+    df = pd.read_html(str(table))
+    type(df)
+    MA_df = df[0]
+    #取当前指数与(MA30+MA72)/2 的值
+    MA = MA_df.iloc[1,6]
+    
+    
+    table = soup.find_all('table', class_='indexpagetable')[0]
+    df = pd.read_html(str(table))
+    type(df)
+    index_df = df[0]
+    type(index_df)
+    index = index_df.iloc[1,0]
+    
+    title=soup.title.string
+    
+    
+    return title+", 目前指数："+index+", (MA30+MA72)/2："+MA
+
+def parseStockqOrg():
+    
+    urlList = ['http://www.stockq.org/index/SHCOMP.php',
+               'http://www.stockq.org/index/SHSZ300.php',
+               'http://www.stockq.org/index/TWSE.php',
+               'http://www.stockq.org/index/INDU.php']
+    msg = ''           
+               
+    for url in urlList:
+        msg += parseStockqOrgUrl(url)+'\n'
+    
+    return msg
+
+

@@ -112,6 +112,11 @@ def handle_message(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=msg))
+    elif reqMsg.find("stockorg") != -1:
+        msg = stock_parse.parseStockqOrg()
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=msg))    
     else:
         line_bot_api.reply_message(
             event.reply_token,
