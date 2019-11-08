@@ -22,32 +22,6 @@ from linebot.exceptions import (
 )
 from linebot.models import *
 
-
-class Config(object):
-    JOBS = [
-        # {
-        #     'id': 'job1',
-        #     'func': 'app:test_data',
-        #     'args': '',
-        #     'trigger': {
-        #         'type': 'cron',
-        #         'day_of_week': "mon-fri",
-        #         'hour': '0-23',
-        #         'minute': '0-59',
-        #         'second': '*/30'
-        #     }
-        #
-        # },
-        {
-            'id': 'job_announce',
-            'func': 'app:test_data',
-            'args': '',
-            'trigger': 'interval',
-            'seconds': 5
-        }
-    ]
-    SCHEDULER_API_ENABLED = True
-
 app = Flask(__name__)
 
 ## 從 Heroku Config Vars 讀取數據
@@ -59,7 +33,8 @@ handler = WebhookHandler(channelSecret)
 
 
 def test_data():
-    print("I am working:%s"+time.asctime())
+    print("I am working:%s" + time.asctime())
+
 
 @app.route("/home", methods=['GET'])
 def home():
@@ -148,12 +123,25 @@ def handle_message(event):
         msg = stock_parse.parseStockqOrg()
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text=msg))  
+            TextSendMessage(text=msg))
     elif reqMsg.find("基本面分析") != -1:
         x = reqMsg.split(" ")
-        code = x[1]
+        num = len(x)
+        if num <= 2:
+            code = x[1]
+            msg = stock_parse.analysisStockPrice(code)
+        elif num == 3:
+            code = x[1]
+            year = float(x[2])
+            msg = stock_parse.analysisStockPrice(code, year)
+        elif num == 4:
+            code = x[1]
+            year = float(x[2])
+            eps = float(x[3])
+            msg = stock_parse.analysisStockPrice(code, year, eps)
+        else:
+            msg = '參數有誤'
         print(code)
-        msg = stock_parse.analysisStockPrice(code)
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=msg))
@@ -164,18 +152,5 @@ def handle_message(event):
         return 0
 
 
-def job1():
-    print ("%s: 执行任务1"  % time.asctime())
-
-def job2():
-    print ("%s: 执行任务2"  % time.asctime())
-
-
-
-
 if __name__ == '__main__':
-    # scheduler = APScheduler();
-    # app.config.from_object(Config())
-    # scheduler.init_app(app)
-    # scheduler.start()
     app.run()
