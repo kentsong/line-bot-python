@@ -209,4 +209,148 @@ def parseStockqOrg():
     
     return msg
 
+def parseEPSNear4Seasons(code):
+    epsUrl = 'https://goodinfo.tw/StockInfo/StockBzPerformance.asp?STOCK_ID='+code+'&YEAR_PERIOD=9999&RPT_CAT=QUAR'
+    
+    headers = {
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36',
+        'referer': 'https://goodinfo.tw/StockInfo/StockBzPerformance.asp?STOCK_ID=2892'
+    }
+    
+    r = requests.post(epsUrl, headers=headers)
+    print('请求结果:' + str(r.status_code) + ', url=' + epsUrl)
+    soup = BeautifulSoup(r.content, "html.parser")
+
+    table = soup.find_all('table', class_ = 'solid_1_padding_4_0_tbl')[0]
+    df = pd.read_html(str(table))
+    
+    #仅筛选前8笔季度、税后EPS栏位
+    epdDf = df[0].iloc[[0,1,2,3,4,5,6,7,8],[0,20]]
+    epdDf.columns = ['季度','EPS']
+    #去除未揭露的EPS季度
+    epdDf = epdDf[epdDf.EPS != '-']
+    #只取4个季度
+    epdDf = epdDf.head(4)
+    #内容转换数值类型
+    epdDf = epdDf.apply(pd.to_numeric, errors='ignore')
+    #确认 dateFrame 转换后数据格式为float64
+    epdDf.dtypes
+    sumDf = epdDf.sum()
+    eps4Session = sumDf[1]
+    print('近四季EPS='+str(eps4Session))
+    
+    return str(eps4Session)
+
+
+def queryStock(code):
+      # 查询股票代号是否存在
+    url_twse = 'https://mis.twse.com.tw/stock/api/getStock.jsp?ch=' + code + '.tw'
+    r = requests.get(url_twse)
+    if r.status_code != 200:
+        print('代號' + code + '查詢失敗')
+        return False
+    else:
+        jsonObj = r.json()
+        stockName = jsonObj['msgArray'][0]['n']
+        print(stockName)
+        return jsonObj
+        
+
+
+
+def analysisStockPrice(code):
+    stockJson = queryStock(code);
+    if stockJson == False:
+        return '代號' + code + '查詢失敗'
+    
+    name = stockJson['msgArray'][0]['n']
+    yPrice = stockJson['msgArray'][0]['y']
+    
+    #历史报表
+    result = parseTwGoodsInfo(code, name)
+    #近四季EPS
+    eps4Session = parseEPSNear4Seasons(code)
+    eps4Session = float(eps4Session)
+    #修改写入近四季EPS
+    result.loc[0, 'EPS'] = eps4Session
+    d1 = result
+    
+    
+    d1 = d1.iloc[[0,1,2,3,4,5],[2,5,6,7,8,9]]
+    
+    d1['殖利率最高'] = d1.apply(lambda x: float(x['股利合计']) / float(x['最低']), axis=1) #axis 0为列，1为行
+    d1['殖利率最低'] = d1.apply(lambda x: float(x['股利合计']) / float(x['最高']), axis=1)  
+    d1['殖利率平均'] = d1.apply(lambda x: float(x['股利合计']) / float(x['年均']), axis=1) 
+    d1['本益比最高'] = d1.apply(lambda x: float(x['最高']) / float(x['EPS']), axis=1) 
+    d1['本益比最低'] = d1.apply(lambda x: float(x['最低']) / float(x['EPS']), axis=1) 
+    d1['本益比平均'] = d1.apply(lambda x: float(x['年均']) / float(x['EPS']), axis=1) 
+    print(d1)
+    d1 = d1.apply(pd.to_numeric, errors='ignore')
+   
+    d1.dtypes
+    #近3年
+    d2 = d1[d1.index < 3]
+    #求平均 axis 0为列，1为行
+    d2_avg = d2.mean(axis=0)
+    
+    #取得最近一年股利 todo：2020年可能要修改逻辑
+    bonus = d1.loc[d1.index[0],'股利合计']
+    bonus = float(bonus)
+    
+    print('---- 殖利率法 ----')
+    bonusHighPrice = bonus / d2_avg['殖利率最低']
+    bonusMiddlePrice = bonus / d2_avg['殖利率平均']
+    bonusLowPrice = bonus / d2_avg['殖利率最高']
+    print('---- 本益比法 ----')
+    epsHighPrice = d2_avg['本益比最高'] * eps4Session
+    epsMiddlePrice = d2_avg['本益比平均'] * eps4Session
+    epsLowPrice = d2_avg['本益比最低'] * eps4Session
+    
+    #小數點保留2位四捨五入
+    bonusHighPrice = round(bonusHighPrice,2)
+    bonusMiddlePrice = round(bonusMiddlePrice,2)
+    bonusLowPrice = round(bonusLowPrice,2)
+    epsHighPrice = round(epsHighPrice,2)
+    epsMiddlePrice = round(epsMiddlePrice,2)
+    epsLowPrice = round(epsLowPrice,2)
+
+    yPrice = float(yPrice)
+    bonusResult = ''
+    if yPrice >= bonusHighPrice:
+        bonusResult ='高於昂貴價'
+    elif yPrice >= bonusMiddlePrice:
+        bonusResult ='高於合理價'
+    elif yPrice < bonusMiddlePrice:
+        bonusResult ='低於合理價'
+    elif yPrice < bonusLowPrice:
+        bonusResult ='低於便宜價'
+    else:
+        bonusResult ='error'
+        
+    epsResult =''    
+    if yPrice >= epsHighPrice:
+        epsResult ='高於昂貴價'
+    elif yPrice >= epsMiddlePrice:
+        epsResult ='高於合理價'
+    elif yPrice < epsMiddlePrice:
+        epsResult ='低於合理價'
+    elif yPrice < epsLowPrice:
+        epsResult ='低於便宜價'
+    else:
+        epsResult ='error'
+        
+    
+    msg1 = f'{name} ({code}) 分析结果：\n昨收價：{yPrice}\n殖利率法：{bonusResult}\n本益比法：{epsResult}\n\n'   
+    mgs2 = f'殖利率法 => 昂貴價：{bonusHighPrice} 合理價：{bonusMiddlePrice} 便宜價：{bonusLowPrice}\n\n'
+    mgs3 = f'本益比法 => 昂貴價：{epsHighPrice} 合理價：{epsMiddlePrice} 便宜價：{epsLowPrice}'
+    msgResult = msg1+mgs2+mgs3
+    print(msgResult)
+    
+    return msgResult
+
+
+
+
+
+
 

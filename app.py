@@ -148,7 +148,15 @@ def handle_message(event):
         msg = stock_parse.parseStockqOrg()
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text=msg))    
+            TextSendMessage(text=msg))  
+    elif reqMsg.find("基本面分析") != -1:
+        x = reqMsg.split(" ")
+        code = x[1]
+        print(code)
+        msg = stock_parse.analysisStockPrice(code)
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=msg))
     else:
         line_bot_api.reply_message(
             event.reply_token,
