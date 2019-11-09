@@ -60,10 +60,10 @@ def parseTwGoodsInfo(code, stockName):
     r = requests.post(url_bonus, data=form_data, headers=headers)
     print('请求结果:' + str(r.status_code) + ', url=' + url_bonus)
     soup = BeautifulSoup(r.content, "html.parser")
-    table = soup.find_all('table')[5]
+    table = soup.find_all('table', class_='solid_1_padding_4_0_tbl')[1]
     df = pd.read_html(str(table))
     # 股利数据
-    bonusData = df[11]  # 获取list第11笔数据
+    bonusData = df[0]  # 获取list第0笔数据
 
     bonusData.columns = ['年度', '现金股利', '现金公积', '现金股利合计', '股票股利', '股票公积', '股票股利合计', '股利合计', '現金(億)', '股票(千張)', '合計(百萬)',
                          '佔淨利',

@@ -20,10 +20,12 @@ import stock_parse
 #    print('數據已存在')
 #else:
 #    print('數據不存在，開始處理...')
-stock_parse.parseStockHistorty('1234')
+#stock_parse.parseStockHistorty('1234')
+#
+#
+#stock_parse.parseCurrentYearPrice('1234')
 
-
-stock_parse.parseCurrentYearPrice('1234')
+stock_parse.analysisStockPrice('2892')
 
 
 #msg = '殖利率法 2892'
