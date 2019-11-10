@@ -253,8 +253,10 @@ def queryStock(code):
         return jsonObj
 
 
-def analysisStockPrice(code, year_num=3, eps=0):
-    print(f'excute analysisStockPrice, params: code={code}, year_num={year_num}, eps={eps}')
+
+def getStockPriceDf(code, year_num=3, eps=0):
+    print(f'excute getStockPriceDf, params: code={code}, year_num={year_num}, eps={eps}')
+
     stockJson = queryStock(code);
     if stockJson == False:
         return '代號' + code + '查詢失敗'
@@ -274,6 +276,13 @@ def analysisStockPrice(code, year_num=3, eps=0):
     # 修改写入近四季EPS
     result.loc[0, 'EPS'] = eps4Session
     d1 = result
+    return d1
+
+
+
+def analysisStockPrice(code, year_num=3, eps=0):
+    print(f'excute analysisStockPrice, params: code={code}, year_num={year_num}, eps={eps}')
+    d1 = getStockPriceDf(code, year_num, eps)
 
     d1 = d1.iloc[[0, 1, 2, 3, 4, 5], [2, 5, 6, 7, 8, 9]]
 

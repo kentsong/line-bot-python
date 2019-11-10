@@ -3,9 +3,13 @@ import re
 import random
 import configparser
 from bs4 import BeautifulSoup
-from flask import Flask, request, abort
+from flask import Flask, request, abort, send_file
 from imgurpython import ImgurClient
 import os
+import io
+import pandas as pd
+import xlsxwriter
+
 # from flask_apscheduler import APScheduler  # 引入APScheduler
 
 import time
@@ -36,11 +40,10 @@ def test_data():
     print("I am working:%s" + time.asctime())
 
 
-@app.route("/home", methods=['GET'])
+@app.route("/", methods=['GET'])
 def home():
     print(channelAccessToken)
     print(channelSecret)
-
     return 'helloworld! linebot'
 
 
@@ -68,6 +71,29 @@ def receiceCommend():
         msg = stock_parse.parseStockHistorty(code)
         return resultMsg + ", 处理结果=" + msg
     return 'type not mapping...'
+
+
+@app.route("/downloadExcel", methods=['GET'])
+def downloadExcel():
+    # args取get方式参数
+    code = request.args.get('code')
+    year = request.args.get('year')
+    eps = request.args.get('eps')
+
+    df1 = stock_parse.getStockPriceDf(code, 3, 0)
+
+    buf = io.BytesIO()
+    excel_writer = pd.ExcelWriter(buf, engine="xlsxwriter")
+    df1.to_excel(excel_writer, sheet_name="sheet1", index=False)
+    excel_writer.save()
+    excel_data = buf.getvalue()
+    buf.seek(0)
+    
+    return send_file(buf,
+                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                     attachment_filename="test11311.xlsx",
+                     as_attachment=True,
+                     cache_timeout=0)
 
 
 @app.route("/callback", methods=['POST'])
