@@ -282,7 +282,26 @@ def getStockPriceDf(code, year_num=3, eps=0):
 
 def analysisStockPrice(code, year_num=3, eps=0):
     print(f'excute analysisStockPrice, params: code={code}, year_num={year_num}, eps={eps}')
-    d1 = getStockPriceDf(code, year_num, eps)
+
+    stockJson = queryStock(code);
+    if stockJson == False:
+        return '代號' + code + '查詢失敗'
+
+    name = stockJson['msgArray'][0]['n']
+    yPrice = stockJson['msgArray'][0]['y']
+
+    # 历史报表
+    result = parseTwGoodsInfo(code, name)
+    # 近四季EPS
+    if eps == 0:
+        eps4Session = parseEPSNear4Seasons(code)
+        eps4Session = float(eps4Session)
+    else:  # 手動填入預估EPS
+        eps4Session = float(eps)
+
+    # 修改写入近四季EPS
+    result.loc[0, 'EPS'] = eps4Session
+    d1 = result
 
     d1 = d1.iloc[[0, 1, 2, 3, 4, 5], [2, 5, 6, 7, 8, 9]]
 
