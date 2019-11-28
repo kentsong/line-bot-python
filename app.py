@@ -54,8 +54,12 @@ def sendMsg():
     print(body)
     print("kentUserId=" + kentUserId)
     # 推訊息
+    try:
+        msg = stock_parse.parseStockqOrg()
+    except:
+        msg = "stockorg 處理異常"
     line_bot_api.push_message(kentUserId,
-                              TextSendMessage(text='Hello World!'))
+                              TextSendMessage(text=msg))
     return 'ok'
 
 
@@ -126,30 +130,19 @@ def handle_message(event):
     reqMsg = event.message.text.lower()
     if reqMsg == "test":
         content = 'test666'
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=content))
-    elif reqMsg.find("殖利率法") != -1:
-        x = reqMsg.split(" ")
-        code = x[1]
-        print(code)
-        stock_parse.parseStockHistorty(code)
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=code))
+        replyMsg(event, content)
     elif reqMsg.find("年度股價") != -1:
         x = reqMsg.split(" ")
         code = x[1]
         print(code)
         msg = stock_parse.parseCurrentYearPrice(code)
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=msg))
+        replyMsg(event, msg)
     elif reqMsg.find("stockorg") != -1:
-        msg = stock_parse.parseStockqOrg()
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=msg))
+        try:
+            msg = stock_parse.parseStockqOrg()
+        except:
+            msg = "stockorg 處理異常"
+        replyMsg(event, msg)
     elif reqMsg.find("基本面分析") != -1:
         x = reqMsg.split(" ")
         num = len(x)
@@ -168,14 +161,15 @@ def handle_message(event):
         else:
             msg = '參數有誤'
         print(code)
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=msg))
+        replyMsg(event, msg)
     else:
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=event.message.text.lower()))
+        replyMsg(event, event.message.text.lower())
         return 0
+
+def replyMsg(event, msg):
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=msg))
 
 
 if __name__ == '__main__':
