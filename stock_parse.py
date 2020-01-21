@@ -298,6 +298,12 @@ def analysisStockPrice(code, year_num=3, eps=0):
 
     # 历史报表
     result = parseTwGoodsInfo(code, name)
+
+    # 如果最新年度股利政策未发布，则剃除
+    if result.loc[0, '现金股利合计'] == '-':
+        # 删除第一笔数据
+        result = result.drop([0])
+
     # 近四季EPS
     if eps == 0:
         eps4Session = parseEPSNear4Seasons(code)
