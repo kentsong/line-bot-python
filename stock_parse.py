@@ -60,15 +60,16 @@ def parseTwGoodsInfo(code, stockName):
     r = requests.post(url_bonus, data=form_data, headers=headers)
     print('请求结果:' + str(r.status_code) + ', url=' + url_bonus)
     soup = BeautifulSoup(r.content, "html.parser")
-    table = soup.find_all('table', class_='solid_1_padding_4_0_tbl')[1]
+    table = soup.find_all('table', class_='solid_1_padding_4_0_tbl')[2]
     df = pd.read_html(str(table))
     # 股利数据
     bonusData = df[0]  # 获取list第0笔数据
 
-    bonusData.columns = ['年度', '现金股利', '现金公积', '现金股利合计', '股票股利', '股票公积', '股票股利合计', '股利合计', '現金(億)', '股票(千張)', '合計(百萬)',
-                         '佔淨利',
-                         '現金(億)', '股票(千張', '股價年度', '最高', '最低', '年均', '現金', '股票', '合計', '股利所屬期間', 'EPS(元)', '配息', '配股',
-                         '合计']
+    bonusData.columns = ['年度', '现金股利', '现金公积', '现金股利合计', '股票股利',
+                         '股票公积', '股票股利合计', '股利合计', '現金(億)', '股票(千張)',
+                         '現金(億)', '股票(千張', '股價年度', '最高', '最低',
+                         '年均', '現金', '股票', '合計', '股利所屬期間',
+                         'EPS(元)', '配息', '配股','合计']
 
     bonusData2 = bonusData[['年度', '现金股利合计', '股票股利合计', '股利合计', '最高', '最低', '年均']]
     bonusData2 = bonusData2.head(6)
