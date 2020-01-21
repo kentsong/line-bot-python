@@ -62,7 +62,7 @@ def parseTwGoodsInfo(code, stockName):
     bzResult = d3
 
     #############      股利脚本             ############
-    r = requests.post(url_bonus, data=form_data_dp headers=headers)
+    r = requests.post(url_bonus, data=form_data_dp, headers=headers)
     print('请求结果:' + str(r.status_code) + ', url=' + url_bonus)
     soup = BeautifulSoup(r.content, "html.parser")
     table = soup.find_all('table', class_='solid_1_padding_4_0_tbl')[2]
