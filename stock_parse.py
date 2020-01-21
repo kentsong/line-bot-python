@@ -28,9 +28,9 @@ def parseTwGoodsInfo(code, stockName):
     form_data = {
         'STOCK_ID': code,
         'YEAR_PERIOD': '9999',
-        'RPT_CAT': 'M%5FYEAR',
-        'STEP': 'DATA',
-        'SHEET': 'PER%2FPBR'
+        #'RPT_CAT': 'M%5FYEAR',
+        #'STEP': 'DATA',
+        #'SHEET': 'PER%2FPBR'
     }
 
     r = requests.post(url_bz, data=form_data, headers=headers)
