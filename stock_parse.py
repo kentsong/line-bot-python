@@ -25,15 +25,20 @@ def parseTwGoodsInfo(code, stockName):
         'referer': 'https://goodinfo.tw/StockInfo/StockBzPerformance.asp?STOCK_ID=2892'
     }
 
-    form_data = {
+    form_data_bz = {
         'STOCK_ID': code,
-        'YEAR_PERIOD': '9999'
-        #'RPT_CAT': 'M%5FYEAR',
-        #'STEP': 'DATA',
-        #'SHEET': 'PER%2FPBR'
+        'YEAR_PERIOD': '9999',
+        'RPT_CAT': 'M%5FYEAR',
+        'STEP': 'DATA',
+        'SHEET': 'PER%2FPBR'
     }
 
-    r = requests.post(url_bz, data=form_data, headers=headers)
+    form_data_dp = {
+        'STOCK_ID': code,
+        'YEAR_PERIOD': '9999'
+    }
+
+    r = requests.post(url_bz, data=form_data_bz, headers=headers)
     print('请求结果:' + str(r.status_code) + ', url=' + url_bz)
     soup = BeautifulSoup(r.content, "html.parser")
 
@@ -57,7 +62,7 @@ def parseTwGoodsInfo(code, stockName):
     bzResult = d3
 
     #############      股利脚本             ############
-    r = requests.post(url_bonus, data=form_data, headers=headers)
+    r = requests.post(url_bonus, data=form_data_dp headers=headers)
     print('请求结果:' + str(r.status_code) + ', url=' + url_bonus)
     soup = BeautifulSoup(r.content, "html.parser")
     table = soup.find_all('table', class_='solid_1_padding_4_0_tbl')[2]
