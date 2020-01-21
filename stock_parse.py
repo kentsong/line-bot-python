@@ -27,7 +27,7 @@ def parseTwGoodsInfo(code, stockName):
 
     form_data = {
         'STOCK_ID': code,
-        'YEAR_PERIOD': '9999',
+        'YEAR_PERIOD': '9999'
         #'RPT_CAT': 'M%5FYEAR',
         #'STEP': 'DATA',
         #'SHEET': 'PER%2FPBR'
