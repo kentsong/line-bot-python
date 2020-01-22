@@ -119,6 +119,13 @@ def callback():
 
     return 'ok'
 
+# 测试 url http://127.0.0.1:5000/callbackTest?msg=stockorg
+# msg 填入测试 command
+@app.route("/callbackTest", methods=['GET'])
+def callbackTest():
+    msg = request.args.get('msg')
+    return handle_message_internal(msg)
+
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
@@ -128,23 +135,28 @@ def handle_message(event):
     print(event)
 
     reqMsg = event.message.text.lower()
-    if reqMsg == "test":
+    resultMsg = handle_message_internal(reqMsg)
+    replyMsg(event, resultMsg)
+    return 0
+
+
+def handle_message_internal(msg):
+    if msg == "test":
         content = 'test666'
-        replyMsg(event, content)
-    elif reqMsg.find("年度股價") != -1:
-        x = reqMsg.split(" ")
+        return content
+    elif msg.find("年度股價") != -1:
+        x = msg.split(" ")
         code = x[1]
         print(code)
-        msg = stock_parse.parseCurrentYearPrice(code)
-        replyMsg(event, msg)
-    elif reqMsg.find("stockorg") != -1:
+        return stock_parse.parseCurrentYearPrice(code)
+    elif msg.find("stockorg") != -1:
         try:
             msg = stock_parse.parseStockqOrg()
         except:
             msg = "stockorg 處理異常"
-        replyMsg(event, msg)
-    elif reqMsg.find("基本面分析") != -1:
-        x = reqMsg.split(" ")
+        return msg
+    elif msg.find("基本面分析") != -1:
+        x = msg.split(" ")
         num = len(x)
         if num <= 2:
             code = x[1]
@@ -161,10 +173,9 @@ def handle_message(event):
         else:
             msg = '參數有誤'
         print(code)
-        replyMsg(event, msg)
+        return msg
     else:
-        replyMsg(event, event.message.text.lower())
-        return 0
+        return msg
 
 def replyMsg(event, msg):
     line_bot_api.reply_message(
