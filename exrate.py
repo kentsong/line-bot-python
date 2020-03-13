@@ -40,7 +40,7 @@ currency_list = {
 
 def getCurrencyName(currency):
     try:
-        currency_name = currency_list[currency]
+        currency_name = currency_list[currency.upper()]
     except:
         return "無可支援的外幣"
     return currency_name
