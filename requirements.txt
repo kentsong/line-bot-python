@@ -10,3 +10,4 @@ APScheduler==3.6.1
 xlsxwriter==1.2.4
 html5lib
 matplotlib
+twder
