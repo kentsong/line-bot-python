@@ -9,6 +9,9 @@ import os
 import io
 import pandas as pd
 import xlsxwriter
+import callback_agent
+import re
+import exrate
 
 # from flask_apscheduler import APScheduler  # 引入APScheduler
 
@@ -124,7 +127,22 @@ def callback():
 @app.route("/callbackTest", methods=['GET'])
 def callbackTest():
     msg = request.args.get('msg')
-    return handle_message_internal(msg)
+    # return handle_message_internal(msg)
+    return callback_agent.handle_message(msg)
+
+# elif re.match('外幣[A-Z]{3}',msg):
+#         currency = msg[2:5] # 外幣代號
+#         currency_name = EXRate.getCurrencyName(currency)
+#         if currency_name == "無可支援的外幣":
+#             content = "無可支援的外幣"
+#             line_bot_api.push_message(uid, TextSendMessage(content))
+#         else:
+#             line_bot_api.push_message(uid, TextSendMessage('您要查詢的外幣是' + currency_name))
+#             text_message = EXRate.showCurrency(currency)
+#             content = Msg_Exrate.realtime_currency(text_message, currency)
+#             line_bot_api.push_message(uid, content)
+#         return 0
+
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -133,28 +151,50 @@ def handle_message(event):
     print("event.message.text:", event.message.text)
     print("event type = " + str(type(event)))
     print(event)
+    profile = line_bot_api.get_profile(event.source.user_id)
+    user_name = profile.display_name  # 使用者名稱
+    uid = profile.user_id  # 發訊者ID
 
     reqMsg = event.message.text.lower()
-    resultMsg = handle_message_internal(reqMsg)
-    replyMsg(event, resultMsg)
+    resultMsg = handle_message_internal(uid, reqMsg)
+    # replyMsg(event, resultMsg)
     return 0
 
 
-def handle_message_internal(msg):
-    if msg == "test":
+def handle_message_internal(uid, msg):
+    if re.match('外幣[A-Za-z]{3}', msg):
+        currency = msg[2:5]  # 外幣代號
+        currency_name = exrate.getCurrencyName(currency)
+        if currency_name == "無可支援的外幣":
+            resultMsg = "無可支援的外幣." + os.linesep + " 以下是支援幣種:" + os.linesep + str(exrate.currency_list)
+            line_bot_api.push_message(uid, TextSendMessage(resultMsg))
+        else:
+            resultMsg = exrate.showCurrency(currency.upper())
+            line_bot_api.push_message(uid, TextSendMessage(resultMsg))
+    if re.match('外幣走勢圖[A-za-z]{3}', msg):
+        currency = msg[5:8]  # 外幣代號
+        currency_name = exrate.getCurrencyName(currency)
+        if currency_name == "無可支援的外幣":
+            resultMsg = "無可支援的外幣."
+            line_bot_api.push_message(uid, TextSendMessage(resultMsg))
+        else:
+            resultMsg = exrate.showHistory(currency.upper())
+            line_bot_api.push_message(uid, ImageSendMessage(original_content_url=resultMsg, preview_image_url=resultMsg))
+    elif msg == "test":
         content = 'test666'
-        return content
+        line_bot_api.push_message(uid, TextSendMessage(content))
     elif msg.find("年度股價") != -1:
         x = msg.split(" ")
         code = x[1]
         print(code)
-        return stock_parse.parseCurrentYearPrice(code)
+        resultMsg =  stock_parse.parseCurrentYearPrice(code)
+        line_bot_api.push_message(uid, TextSendMessage(resultMsg))
     elif msg.find("stockorg") != -1:
         try:
             msg = stock_parse.parseStockqOrg()
         except:
             msg = "stockorg 處理異常"
-        return msg
+        line_bot_api.push_message(uid, TextSendMessage(msg))
     elif msg.find("基本面分析") != -1:
         x = msg.split(" ")
         num = len(x)
@@ -173,15 +213,14 @@ def handle_message_internal(msg):
         else:
             msg = '參數有誤'
         print(code)
-        return msg
+        line_bot_api.push_message(uid, TextSendMessage(msg))
     else:
-        return msg
+        line_bot_api.push_message(uid, TextSendMessage(msg))
 
 def replyMsg(event, msg):
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=msg))
 
-
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

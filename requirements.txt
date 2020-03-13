@@ -1,10 +1,13 @@
 Flask==1.1.1
-gunicorn==19.9.0
+gunicorn
 beautifulsoup4==4.6.3
 line-bot-sdk==1.14.0
 imgurpython==1.1.7
 pymongo==3.9.0
-pandas==0.25.2
+pandas==1.0.1
 lxml==4.4.1
 APScheduler==3.6.1
 xlsxwriter==1.2.4
+html5lib
+matplotlib
+twder
