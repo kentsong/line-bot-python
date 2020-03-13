@@ -9,6 +9,12 @@ chinese_font = matplotlib.font_manager.FontProperties(fname='msjh.ttf') # 引入
 import twder
 from imgurpython import ImgurClient
 
+######
+# 本地跑 flask 要配置
+# 1.建立檔案： ~/.matplotlib/matplotlibrc
+# 2.加入文字：backend: TkAgg
+#####
+
 
 client_id = '86be6f0815e1b83'
 client_secret = '354f47655c40d274102bac9dd731646967c33103'

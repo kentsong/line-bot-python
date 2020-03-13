@@ -169,7 +169,7 @@ def handle_message_internal(uid, msg):
             resultMsg = "無可支援的外幣." + os.linesep + " 以下是支援幣種:" + os.linesep + str(exrate.currency_list)
             line_bot_api.push_message(uid, TextSendMessage(resultMsg))
         else:
-            resultMsg = exrate.showCurrency(currency)
+            resultMsg = exrate.showCurrency(currency.upper())
             line_bot_api.push_message(uid, TextSendMessage(resultMsg))
     if re.match('外幣走勢圖[A-za-z]{3}', msg):
         currency = msg[5:8]  # 外幣代號
@@ -178,7 +178,7 @@ def handle_message_internal(uid, msg):
             resultMsg = "無可支援的外幣."
             line_bot_api.push_message(uid, TextSendMessage(resultMsg))
         else:
-            resultMsg = exrate.showHistory(currency)
+            resultMsg = exrate.showHistory(currency.upper())
             line_bot_api.push_message(uid, ImageSendMessage(original_content_url=resultMsg, preview_image_url=resultMsg))
     elif msg == "test":
         content = 'test666'
