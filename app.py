@@ -130,20 +130,6 @@ def callbackTest():
     # return handle_message_internal(msg)
     return callback_agent.handle_message(msg)
 
-# elif re.match('外幣[A-Z]{3}',msg):
-#         currency = msg[2:5] # 外幣代號
-#         currency_name = EXRate.getCurrencyName(currency)
-#         if currency_name == "無可支援的外幣":
-#             content = "無可支援的外幣"
-#             line_bot_api.push_message(uid, TextSendMessage(content))
-#         else:
-#             line_bot_api.push_message(uid, TextSendMessage('您要查詢的外幣是' + currency_name))
-#             text_message = EXRate.showCurrency(currency)
-#             content = Msg_Exrate.realtime_currency(text_message, currency)
-#             line_bot_api.push_message(uid, content)
-#         return 0
-
-
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
@@ -171,7 +157,7 @@ def handle_message_internal(uid, msg):
         else:
             resultMsg = exrate.showCurrency(currency.upper())
             line_bot_api.push_message(uid, TextSendMessage(resultMsg))
-    if re.match('外幣走勢圖[A-za-z]{3}', msg):
+    elif re.match('外幣走勢圖[A-za-z]{3}', msg):
         currency = msg[5:8]  # 外幣代號
         currency_name = exrate.getCurrencyName(currency)
         if currency_name == "無可支援的外幣":

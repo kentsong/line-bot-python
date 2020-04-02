@@ -8,7 +8,7 @@ class Animal(abc.ABC): #{1}
     @property
     def shout_num(self):
         return self._shout_num
-    @shout_num.setter
+    @shout_num.setter  ##这不知道是干嘛的
     def shout_num(self,num):
         self._shout_num = num
 
@@ -24,6 +24,8 @@ class Animal(abc.ABC): #{1}
 class Cat(Animal):
     def _getShoutSound(self): #{3}
         return "meow~"
+    def move(self):
+        print(self._name + " move..")
 
 class Dog(Animal):
     def _getShoutSound(self):
@@ -32,6 +34,8 @@ class Dog(Animal):
 
 cat = Cat("ada")
 print(cat.shout())
+cat.move()
+print(cat.shout_num)
 
 dog = Dog("旺旺队ˋ")
 print(dog.shout())
