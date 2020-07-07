@@ -20,6 +20,7 @@ import time
 # 本地py引入
 import storage
 import stock_parse
+import support.smtp_helper as smtp_helper
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -200,6 +201,8 @@ def handle_message_internal(uid, msg):
             msg = '參數有誤'
         print(code)
         line_bot_api.push_message(uid, TextSendMessage(msg))
+    elif msg.find("sendmail") != -1:
+        line_bot_api.push_message(uid, smtp_helper.sendEmail())
     else:
         line_bot_api.push_message(uid, TextSendMessage(msg))
 
