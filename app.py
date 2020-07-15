@@ -69,13 +69,12 @@ def sendMsg():
 
 @app.route("/jobs", methods=['GET'])
 def jobs():
+    msg = 'ok'
     try:
         job_manager.start(callbackLineMsg)
     except:
-        msg = "jobs 處理異常"
-    line_bot_api.push_message(kentUserId,
-                              TextSendMessage(text=msg))
-    return 'ok'
+        msg = "error"
+    return msg
 
 
 @app.route("/controller", methods=['GET'])
