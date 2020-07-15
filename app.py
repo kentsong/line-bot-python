@@ -12,6 +12,7 @@ import xlsxwriter
 import callback_agent
 import re
 import exrate
+import job_manager
 
 # from flask_apscheduler import APScheduler  # 引入APScheduler
 
@@ -62,6 +63,16 @@ def sendMsg():
         msg = stock_parse.parseStockqOrg()
     except:
         msg = "stockorg 處理異常"
+    line_bot_api.push_message(kentUserId,
+                              TextSendMessage(text=msg))
+    return 'ok'
+
+@app.route("/jobs", methods=['GET'])
+def jobs():
+    try:
+        job_manager.start(callbackLineMsg)
+    except:
+        msg = "jobs 處理異常"
     line_bot_api.push_message(kentUserId,
                               TextSendMessage(text=msg))
     return 'ok'
@@ -210,6 +221,12 @@ def replyMsg(event, msg):
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=msg))
+
+def callbackLineMsg(msg):
+    print('callbackLineMsg --->'+msg)
+    line_bot_api.push_message(kentUserId,
+                              TextSendMessage(text=msg))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
