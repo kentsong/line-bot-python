@@ -1,5 +1,5 @@
 # 类定义
-class people:
+class people(object):
     # 定义基本属性
     name = ''
     age = 0
@@ -26,7 +26,7 @@ class student(people):
         self.grade = g
 
     # 覆写父类的方法
-    def speak(self):
+    def speak2(self):
         print("%s 说: 我 %d 岁了，我在读 %d 年级" % (self.name, self.age, self.grade))
 
 
@@ -45,11 +45,15 @@ class speaker():
 
 # 多重继承
 class sample(speaker, student):
-    a = ''
-
     def __init__(self, n, a, w, g, t):
         student.__init__(self, n, a, w, g)
         speaker.__init__(self, n, t)
+
+    def speak(self):
+        # 多重繼承時，不要設計相同方法名
+        # 如果方法名同，默认调用的是在括号中排前地父类的方法 sample(speaker, student) ，就是 call speaker 的 speck
+        super(sample, self).speak()
+        super(sample, self).speak2()
 
 
 # 实例化类
