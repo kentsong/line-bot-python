@@ -5,6 +5,11 @@ import numpy as np
 import pymongo
 import time
 
+"""
+這個job本來是給老爸報名板橋社區大學公告課程用的，如果 google 有搜到就發 Line Msg 給我
+未來可以考慮當做搜索jobs 使用
+沒有經過特別測試，可能會跑失敗，需要加上失敗 error 上報
+"""
 
 def execute(coll, dict, _callbackLineMsg):
     targetStr = dict['name']

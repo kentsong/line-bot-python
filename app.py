@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from flask import Flask, request, abort, send_file
 from imgurpython import ImgurClient
 import os
+import local_env_loader #本地環境變數
 import io
 import pandas as pd
 import xlsxwriter
@@ -229,3 +230,4 @@ def callbackLineMsg(msg):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
