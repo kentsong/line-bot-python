@@ -1,22 +1,16 @@
-import requests
-import re
-import random
-import configparser
-from bs4 import BeautifulSoup
+import sys
+# 配置本地環境，對照 Folder
+sys.path.append('command')
 from flask import Flask, request, abort, send_file
-from imgurpython import ImgurClient
 import os
 import local_env_loader #本地環境變數
 import io
 import pandas as pd
-import xlsxwriter
-import callback_agent
 import re
 import exrate
 import job_manager
-
+import command.command_manager as cmdManager
 # from flask_apscheduler import APScheduler  # 引入APScheduler
-
 import time
 
 # 本地py引入
@@ -42,16 +36,9 @@ line_bot_api = LineBotApi(channelAccessToken)
 handler = WebhookHandler(channelSecret)
 
 
-def test_data():
-    print("I am working:%s" + time.asctime())
-
-
 @app.route("/", methods=['GET'])
 def home():
-    print(channelAccessToken)
-    print(channelSecret)
     return 'helloworld! linebot'
-
 
 @app.route("/sendMsg", methods=['GET'])
 def sendMsg():
@@ -139,9 +126,7 @@ def callback():
 @app.route("/callbackTest", methods=['GET'])
 def callbackTest():
     msg = request.args.get('msg')
-    # return handle_message_internal(msg)
-    return callback_agent.handle_message(msg)
-
+    return cmdManager.handle_command(msg)
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
@@ -154,7 +139,10 @@ def handle_message(event):
     uid = profile.user_id  # 發訊者ID
 
     reqMsg = event.message.text.lower()
-    resultMsg = handle_message_internal(uid, reqMsg)
+    # command框架處理
+    result = cmdManager.handle_command(reqMsg)
+    if result == "目前無此功能，輸入：所有功能，查看現有功能。":
+        handle_message_internal(uid, reqMsg)
     # replyMsg(event, resultMsg)
     return 0
 
@@ -216,11 +204,6 @@ def handle_message_internal(uid, msg):
         line_bot_api.push_message(uid, smtp_helper.sendEmail())
     else:
         line_bot_api.push_message(uid, TextSendMessage(msg))
-
-def replyMsg(event, msg):
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=msg))
 
 def callbackLineMsg(msg):
     print('callbackLineMsg --->'+msg)

@@ -53,6 +53,8 @@ def getCurrencyName(currency):
         return "無可支援的外幣"
     return currency_name
 
+def getCurrencyList():
+    return currency_list
 
 # 查詢匯率
 def showCurrency(msg):  # msg為外幣代碼
