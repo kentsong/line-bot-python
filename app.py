@@ -141,11 +141,11 @@ def handle_message(event):
     reqMsg = event.message.text.lower()
     # command框架處理
     result = cmdManager.handle_command(reqMsg)
-    if result == "目前無此功能，輸入：所有功能，查看現有功能。":
+    if not result:
         handle_message_internal(uid, reqMsg)
-    # replyMsg(event, resultMsg)
+    else:
+        line_bot_api.push_message(uid, TextSendMessage(result))
     return 0
-
 
 def handle_message_internal(uid, msg):
     if re.match('外幣[A-Za-z]{3}', msg):

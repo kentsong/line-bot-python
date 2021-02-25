@@ -27,7 +27,8 @@ def handle_command(command):
         return "列出所有功能"
 
     if myDict.__contains__(params[0]) == False:
-        return "目前無此功能，輸入：所有功能，查看現有功能。"
+        # return "目前無此功能，輸入：所有功能，查看現有功能。"
+        return False
     else:
         cmdCls = myDict[params[0]]
         try:
