@@ -4,6 +4,7 @@ sys.path.append('command')
 from flask import Flask, request, abort, send_file
 import os
 import local_env_loader #本地環境變數
+local_env_loader.setup_env()
 import io
 import pandas as pd
 import re
@@ -148,25 +149,7 @@ def handle_message(event):
     return 0
 
 def handle_message_internal(uid, msg):
-    if re.match('外幣[A-Za-z]{3}', msg):
-        currency = msg[2:5]  # 外幣代號
-        currency_name = exrate.getCurrencyName(currency)
-        if currency_name == "無可支援的外幣":
-            resultMsg = "無可支援的外幣." + os.linesep + " 以下是支援幣種:" + os.linesep + str(exrate.currency_list)
-            line_bot_api.push_message(uid, TextSendMessage(resultMsg))
-        else:
-            resultMsg = exrate.showCurrency(currency.upper())
-            line_bot_api.push_message(uid, TextSendMessage(resultMsg))
-    elif re.match('外幣走勢圖[A-za-z]{3}', msg):
-        currency = msg[5:8]  # 外幣代號
-        currency_name = exrate.getCurrencyName(currency)
-        if currency_name == "無可支援的外幣":
-            resultMsg = "無可支援的外幣."
-            line_bot_api.push_message(uid, TextSendMessage(resultMsg))
-        else:
-            resultMsg = exrate.showHistory(currency.upper())
-            line_bot_api.push_message(uid, ImageSendMessage(original_content_url=resultMsg, preview_image_url=resultMsg))
-    elif msg == "test":
+    if msg == "test":
         content = 'test666'
         line_bot_api.push_message(uid, TextSendMessage(content))
     elif msg.find("年度股價") != -1:

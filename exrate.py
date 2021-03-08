@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 from matplotlib.font_manager import FontProperties # 設定字體
-chinese_font = matplotlib.font_manager.FontProperties(fname='msjh.ttf') # 引入同個資料夾下支援中文字檔
+chinese_font = matplotlib.font_manager.FontProperties(fname='../msjh.ttf') # 引入同個資料夾下支援中文字檔
 import twder
 import os
 from imgurpython import ImgurClient
@@ -103,19 +103,19 @@ def showHistory(msg):
     df2 = df2.iloc[::-1]  # row 順序反轉，因原始資料是從最新開始排
 
     print(df2)
-
     # df2.plot(kind='line', figsize=(12, 6), x='date', y=[u'即期買入', u'即期賣出'])
     df2.plot(kind='line', figsize=(12, 6), x='date', y=['即期買入', '即期賣出'])
     plt.legend(prop=chinese_font)  # 支援中文字
     plt.title("即期匯率", fontsize=40, fontproperties=chinese_font)
     plt.savefig(msg+".png")
-    plt.show()
+    # plt.show()
     plt.close()
-
+    print('-------準備上傳圖片')
 
 
     ### 上传图片到 imgur
     client = ImgurClient(client_id, client_secret, access_token, refresh_token)
+    print(f'client={client}')
     config = {
         'album': 'g4yhAr4',
         'name': 'test-name!',

@@ -1,5 +1,6 @@
-try:
-    import local_env
-    local_env.initEnv()
-except:
-    print('warm....localEnv not found')
+def setup_env():
+    try:
+        import local_env
+        local_env.initEnv()
+    except:
+        print('warm....localEnv not found')
