@@ -74,7 +74,7 @@ def parseTwGoodsInfo(code, stockName):
                          '股票公积', '股票股利合计', '股利合计', '現金(億)', '股票(千張)',
                          '現金(億)', '股票(千張', '股價年度', '最高', '最低',
                          '年均', '現金', '股票', '合計', '股利所屬期間',
-                         'EPS(元)', '配息', '配股','合计']
+                         'EPS(元)', '配息', '配股', '合计']
 
     bonusData2 = bonusData[['年度', '现金股利合计', '股票股利合计', '股利合计', '最高', '最低', '年均']]
     bonusData2 = bonusData2.head(6)
@@ -195,15 +195,18 @@ def parseStockqOrgUrl(url):
     index = index_df.iloc[1, 0]
 
     title = soup.title.string
+    # 去除部分文字
+    title = title.replace("StockQ.org", "")
 
     return title + ", 目前指数：" + index + ", (MA30+MA72)/2：" + MA
 
 
 def parseStockqOrg():
-    urlList = ['http://www.stockq.org/index/SHCOMP.php',
-               'http://www.stockq.org/index/SHSZ300.php',
-               'http://www.stockq.org/index/TWSE.php',
-               'http://www.stockq.org/index/INDU.php']
+    urlList = []
+    urlList.append('http://www.stockq.org/index/SHSZ300.php')
+    urlList.append('http://www.stockq.org/index/TWSE.php')
+    urlList.append('http://www.stockq.org/index/SPX.php')
+    urlList.append('http://www.stockq.org/index/VNINDEX.php')
     msg = ''
 
     for url in urlList:
@@ -259,7 +262,6 @@ def queryStock(code):
         return jsonObj
 
 
-
 def getStockPriceDf(code, year_num=3, eps=0):
     print(f'excute getStockPriceDf, params: code={code}, year_num={year_num}, eps={eps}')
 
@@ -283,7 +285,6 @@ def getStockPriceDf(code, year_num=3, eps=0):
     result.loc[0, 'EPS'] = eps4Session
     d1 = result
     return d1
-
 
 
 def analysisStockPrice(code, year_num=3, eps=0):
