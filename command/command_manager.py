@@ -1,5 +1,7 @@
 import exchange_rate
-import exchange_rate_chart
+import stockorg
+import twse
+import goodsinfo
 import collections
 import util.error_util as error_util
 import os
@@ -16,8 +18,11 @@ def add_command(cls):
 
 
 # 在此添加功能
-add_command(exchange_rate.exchange_rate())  # 外幣匯率
-add_command(exchange_rate_chart.exchange_rate_chart())  # 外幣匯率
+add_command(exchange_rate.ExchangeRate())  # 外幣匯率
+add_command(exchange_rate.ExchangeRateChart())  # 外幣走勢
+add_command(stockorg.StockOrgIndex())  # stockorg指数
+add_command(twse.TwPrice())
+add_command(goodsinfo.BaseAnalysisPrice())
 
 
 def handle_command(command):

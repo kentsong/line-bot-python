@@ -7,8 +7,6 @@ import local_env_loader #本地環境變數
 local_env_loader.setup_env()
 import io
 import pandas as pd
-import re
-import exrate
 import job_manager
 import command.command_manager as cmdManager
 # from flask_apscheduler import APScheduler  # 引入APScheduler
@@ -152,37 +150,37 @@ def handle_message_internal(uid, msg):
     if msg == "test":
         content = 'test666'
         line_bot_api.push_message(uid, TextSendMessage(content))
-    elif msg.find("年度股價") != -1:
-        x = msg.split(" ")
-        code = x[1]
-        print(code)
-        resultMsg =  stock_parse.parseCurrentYearPrice(code)
-        line_bot_api.push_message(uid, TextSendMessage(resultMsg))
-    elif msg.find("stockorg") != -1:
-        try:
-            msg = stock_parse.parseStockqOrg()
-        except:
-            msg = "stockorg 處理異常"
-        line_bot_api.push_message(uid, TextSendMessage(msg))
-    elif msg.find("基本面分析") != -1:
-        x = msg.split(" ")
-        num = len(x)
-        if num <= 2:
-            code = x[1]
-            msg = stock_parse.analysisStockPrice(code)
-        elif num == 3:
-            code = x[1]
-            year = float(x[2])
-            msg = stock_parse.analysisStockPrice(code, year)
-        elif num == 4:
-            code = x[1]
-            year = float(x[2])
-            eps = float(x[3])
-            msg = stock_parse.analysisStockPrice(code, year, eps)
-        else:
-            msg = '參數有誤'
-        print(code)
-        line_bot_api.push_message(uid, TextSendMessage(msg))
+    # elif msg.find("年度股價") != -1:
+    #     x = msg.split(" ")
+    #     code = x[1]
+    #     print(code)
+    #     resultMsg =  stock_parse.parseCurrentYearPrice(code)
+    #     line_bot_api.push_message(uid, TextSendMessage(resultMsg))
+    # elif msg.find("stockorg") != -1:
+    #     try:
+    #         msg = stock_parse.parseStockqOrg()
+    #     except:
+    #         msg = "stockorg 處理異常"
+    #     line_bot_api.push_message(uid, TextSendMessage(msg))
+    # elif msg.find("基本面分析") != -1:
+    #     x = msg.split(" ")
+    #     num = len(x)
+    #     if num <= 2:
+    #         code = x[1]
+    #         msg = stock_parse.analysisStockPrice(code)
+    #     elif num == 3:
+    #         code = x[1]
+    #         year = float(x[2])
+    #         msg = stock_parse.analysisStockPrice(code, year)
+    #     elif num == 4:
+    #         code = x[1]
+    #         year = float(x[2])
+    #         eps = float(x[3])
+    #         msg = stock_parse.analysisStockPrice(code, year, eps)
+    #     else:
+    #         msg = '參數有誤'
+    #     print(code)
+    #     line_bot_api.push_message(uid, TextSendMessage(msg))
     elif msg.find("sendmail") != -1:
         line_bot_api.push_message(uid, smtp_helper.sendEmail())
     else:
