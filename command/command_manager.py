@@ -39,7 +39,7 @@ def handle_command(command):
     else:
         cmdCls = myDict[params[0]]
         # 功能说明
-        if len(params) == 1 or (len(params) == 2 and params[1] == 'help'):
+        if len(params) == 2 and params[1] == 'help':
             return cmdCls.description_how_to_use()
         # 功能执行
         try:
