@@ -13,6 +13,8 @@ import numpy as np
 import pymongo
 import storage
 import time
+import bs4
+import os
 
 
 # 獲取 https://goodinfo.tw 網站信息，歷年股利、績效
@@ -384,3 +386,63 @@ def analysisStockPrice(code, year_num=3, eps=0):
     print(msgResult)
 
     return msgResult
+
+
+def parseMyWatchStock():
+    # 目標網站。
+    url = "https://goodinfo.tw/StockInfo/StockList.asp?SEARCH_WORD=&MARKET_CAT=%E6%88%91%E7%9A%84%E9%81%B8%E8%82%A1&INDUSTRY_CAT=%E6%8A%95%E8%B3%87%E7%B5%84%E5%90%88&STOCK_CODE=&RANK=0&STEP=DATA&SHEET=%E8%87%AA%E8%A8%82%E6%AC%84%E4%BD%8D_%E6%8A%95%E8%B3%87%E7%B5%84%E5%90%88"
+    # 設定headers
+    headers = {
+        'encoding': 'gzip, deflate, br',
+        'accept-language': 'en-US,en;q=0.9,zh-TW;q=0.8,zh;q=0.7',
+        'content-type': 'application/x-www-form-urlencoded;',
+        'cookie': 'LOGIN=EMAIL=song046%40gmail%2Ecom&USER%5FNM=%E5%AE%8B%E7%AB%B9%E5%87%B1&ACCOUNT%5FID=105629881102896650391&ACCOUNT%5FVENDOR=Google&NO%5FEXPIRE=T',
+        'referer': 'https://goodinfo.tw/StockInfo/StockList.asp',
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36'
+    }
+    # 使用headers讓網站辨識我們是存在的使用者
+    res = requests.post(url, headers=headers)
+    # 更改資料的字元編碼
+    res.encoding = 'utf-8'
+    # 將取得的網站用'lxml'解析整理
+    soup = bs4.BeautifulSoup(res.text, 'lxml')
+    # 用css的語法找到id = 'txtFinDetailData'
+    data = soup.select_one('#tblStockList')
+    # 用.prettify()將data整理得更好且用read_html來找到表格
+    df = pd.read_html(data.prettify())
+
+    msg = ''
+    list = [50, 56, 2330, 2892, 2891, 2317, 2886]
+    for index, row in df[0].iterrows():
+        code = row['代號']
+        if not list.__contains__(code):
+            continue
+
+        k_day = fmtNum(row['K值  (日)'])
+        k_week = fmtNum(row['K值  (週)'])
+        bias_5MA = fmtNum(row['5日  均線  乖離率'])
+        bias_10MA = fmtNum(row['10日  均線  乖離率'])
+        bias_60MA = fmtNum(row['季  均線  乖離率'])
+        result = False
+        if k_day >= 80 or k_day <= 20:
+            result = True
+        if k_week >= 80 or k_week <= 20:
+            result = True
+        if bias_5MA >= 10 or bias_5MA <= -10:
+            result = True
+        if bias_10MA >= 15 or bias_10MA <= -15:
+            result = True
+        if bias_60MA >= 20 or bias_60MA <= -20:
+            result = True
+        if result == True:
+            str = f"{row['名稱']}({row['代號']}) {os.linesep}" \
+                  f"K值(日)：{row['K值  (日)']}, (周)：{row['K值  (週)']}{os.linesep}" \
+                  f"乖離率 5MA：{bias_5MA}, 10MA：{bias_10MA} , 60MA：{bias_60MA} {os.linesep}" \
+                  f"-------"
+            msg += str
+    return msg
+
+
+def fmtNum(str):
+    fmtStr = str.replace('↗', '').replace('↘', '')
+    return float(fmtStr)

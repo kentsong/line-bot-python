@@ -23,7 +23,7 @@ add_command(exchange_rate.ExchangeRateChart())  # 外幣走勢
 add_command(stockorg.StockOrgIndex())  # stockorg指数
 add_command(twse.TwPrice())
 add_command(goodsinfo.BaseAnalysisPrice())
-
+add_command(goodsinfo.MyWatchStock())
 
 def handle_command(command):
     # 空白格區分入參
