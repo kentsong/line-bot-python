@@ -388,7 +388,7 @@ def analysisStockPrice(code, year_num=3, eps=0):
     return msgResult
 
 
-def parseMyWatchStock():
+def processTW():
     # 目標網站。
     url = "https://goodinfo.tw/StockInfo/StockList.asp?SEARCH_WORD=&MARKET_CAT=%E6%88%91%E7%9A%84%E9%81%B8%E8%82%A1&INDUSTRY_CAT=%E6%8A%95%E8%B3%87%E7%B5%84%E5%90%88&STOCK_CODE=&RANK=0&STEP=DATA&SHEET=%E8%87%AA%E8%A8%82%E6%AC%84%E4%BD%8D_%E6%8A%95%E8%B3%87%E7%B5%84%E5%90%88"
     # 設定headers
@@ -418,11 +418,11 @@ def parseMyWatchStock():
         if not list.__contains__(code):
             continue
 
-        k_day = fmtNum(row['K值  (日)'])
-        k_week = fmtNum(row['K值  (週)'])
-        bias_5MA = fmtNum(row['5日  均線  乖離率'])
-        bias_10MA = fmtNum(row['10日  均線  乖離率'])
-        bias_60MA = fmtNum(row['季  均線  乖離率'])
+        k_day = fmtArrowToNum(row['K值  (日)'])
+        k_week = fmtArrowToNum(row['K值  (週)'])
+        bias_5MA = fmtArrowToNum(row['5日  均線  乖離率'])
+        bias_10MA = fmtArrowToNum(row['10日  均線  乖離率'])
+        bias_60MA = fmtArrowToNum(row['季  均線  乖離率'])
         result = False
         if k_day >= 80 or k_day <= 20:
             result = True
@@ -443,6 +443,65 @@ def parseMyWatchStock():
     return msg
 
 
-def fmtNum(str):
+def processCN():
+    # 目標網站。
+    url = "https://goodinfo.tw/StockCN/StockListCN.asp?SEARCH_WORD=&MENU=%E8%A1%8C%E4%B8%9A&MENU2=&ITEM=%E9%87%91%E8%9E%8D%E4%B8%9A&SHEET=%E6%8A%80%E6%9C%AF%E6%8C%87%E6%A0%87%E2%80%93%E8%82%A1%E4%BB%B7%E7%A7%BB%E5%8A%A8%E5%B9%B3%E5%9D%87%E7%BA%BF&RANK=0&MARKET_CAT=&MARKET_CAT2=%E8%82%A1%E7%A5%A8&MARKET_CAT3=&INDUSTRY=%E9%87%91%E8%9E%8D%E4%B8%9A&STATE=&STEP=DATA&SHEET2=%E4%B9%96%E7%A6%BB%E7%8E%87(%25)"
+    # #設定headers
+    headers = {
+        'encoding': 'gzip, deflate, br',
+        'accept-language': 'en-US,en;q=0.9,zh-TW;q=0.8,zh;q=0.7',
+        'content-type': 'application/x-www-form-urlencoded;',
+        'cookie': 'CLIENT%5FID=20200616133200429%5F123%2E125%2E37%2E227; _ga=GA1.2.2020922136.1592285608; __gads=ID=1b86662f3bb697aa:T=1592285609:R:S=ALNI_MajipRSX72fa0k7SkifzVHGNtnB4A; FLOAT_TITLE_BAR=F; LOGIN=EMAIL=song046%40gmail%2Ecom&USER%5FNM=%E5%AE%8B%E7%AB%B9%E5%87%B1&ACCOUNT%5FID=105629881102896650391&ACCOUNT%5FVENDOR=Google&NO%5FEXPIRE=T; GOOD%5FINFO%5FSTOCK%5FBROWSE%5FLIST=5%7C2886%7C2330%7C2317%7C2891%7C2892; SCREEN_SIZE=WIDTH=1440&HEIGHT=900; IS_TOUCH_DEVICE=F; _gid=GA1.2.2074128698.1616383466; _gat=1',
+        'referer': 'https://goodinfo.tw/StockCN/StockListCN.asp?MENU=%E8%A1%8C%E4%B8%9A&ITEM=%E9%87%91%E8%9E%8D%E4%B8%9A&MARKET_CAT2=%E8%82%A1%E7%A5%A8&INDUSTRY=%E9%87%91%E8%9E%8D%E4%B8%9A&MARKET_CAT=&SHEET=%E4%BA%A4%E6%98%93%E7%8A%B6%E5%86%B5%E2%80%93%E6%88%90%E4%BA%A4%E8%B5%84%E6%96%99&SHEET2=%E6%97%A5&RPT_TIME=%E6%9C%80%E6%96%B0%E8%B5%84%E6%96%99',
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36'
+    }
+    # 使用headers讓網站辨識我們是存在的使用者
+    res = requests.get(url, headers=headers)
+    # 更改資料的字元編碼
+    res.encoding = 'utf-8'
+    soup = bs4.BeautifulSoup(res.text, 'lxml')
+
+    data = soup.select_one('#divStockList')
+    df = pd.read_html(data.prettify())
+
+    msg = ''
+    list = ['600036', '601318']
+    for index, row in df[0].iterrows():
+        code = row[0]  # 代码
+        # print(code+str(type(code)))
+        if not list.__contains__(code):
+            continue
+        print(code)
+        name = row[1]  # 名稱
+        bias_5MA = fmtPercentageToNum(row[8])  # 5日  均線  乖離率
+        bias_10MA = fmtPercentageToNum(row[9])  # 10日  均線  乖離率
+        bias_60MA = fmtPercentageToNum(row[11])  # 季  均線  乖離率
+        result = False
+
+        if bias_5MA >= 10 or bias_5MA <= -10:
+            result = True
+        if bias_10MA >= 15 or bias_10MA <= -15:
+            result = True
+        if bias_60MA >= 20 or bias_60MA <= -20:
+            result = True
+        if result == True:
+            str = f"{name}({code}) {os.linesep}" \
+                  f"乖離率 5MA：{bias_5MA}, 10MA：{bias_10MA} , 60MA：{bias_60MA} {os.linesep}" \
+                  f"-------"
+            msg += str
+    return msg
+
+
+def parseMyWatchStock():
+    msg = processTW() + os.linesep + processCN()
+    return msg
+
+
+def fmtArrowToNum(str):
     fmtStr = str.replace('↗', '').replace('↘', '')
+    return float(fmtStr)
+
+
+def fmtPercentageToNum(str):
+    fmtStr = str.replace('%', '')
     return float(fmtStr)
