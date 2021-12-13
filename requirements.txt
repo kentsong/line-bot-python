@@ -5,7 +5,7 @@ line-bot-sdk==1.14.0
 imgurpython==1.1.7
 pymongo==3.9.0
 pandas==1.0.1
-lxml==4.6.2
+lxml==4.6.5
 APScheduler==3.6.1
 xlsxwriter==1.2.4
 html5lib
